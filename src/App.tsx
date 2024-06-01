@@ -1,5 +1,5 @@
-import React from "react";
-import { Routes, Route, } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { Home } from "./components/screens/home/Home";
 import Profile from "./components/screens/profile/Profile";
 import Contact from "./components/screens/contact/Contact";
@@ -17,23 +17,38 @@ import EscortVerifyStatus from "./components/screens/escort/escortVerfiyStatus/E
 import EscortPremium from "./components/screens/escort/escortPremium/EscortPremium";
 
 const App = () => {
+  // State to hold authentication status
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Check if user is already logged in from local storage
+  useEffect(() => {
+    const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+    setIsAuthenticated(isLoggedIn);
+  }, []);
+// console.log("C",isAuthenticated);
+
   return (
     <Routes>
       <Route path="/" element={<Home />} />
-      <Route path="/profile" element={<Profile />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/login" element={<Login />} />
-      <Route path="/forget" element={<Forgot />} />
+      <Route path="/forgot" element={<Forgot />} />
+      <Route path="/profile/:id" element={<Profile />} />
       <Route path="/register" element={<Register />} />
       <Route path="/escortRegister" element={<EscortRegister />} />
       <Route path="/agencyRegister" element={<RegisterAgency />} />
       <Route path="/userRegister" element={<RegisterUser />} />
       <Route path="/userProfile" element={<ProfilePageUser />} />
       <Route path="/editProfile" element={<EditProfile />} />
-      <Route path="/escortProfile" element={<EscortProfile />} />
       <Route path="/escortEditProfile" element={<EscortEditProfile />} />
       <Route path="/escortVerifyProfile" element={<EscortVerifyStatus />} />
       <Route path="/escortPremium" element={<EscortPremium />} />
+
+      {/* Route for profile */}
+      <Route
+        path="/escortProfile"
+        element={isAuthenticated === true ? <EscortProfile /> : <Login />}
+      />
     </Routes>
   );
 };

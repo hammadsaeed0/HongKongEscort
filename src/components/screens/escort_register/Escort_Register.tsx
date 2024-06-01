@@ -1,8 +1,14 @@
 import React, { useState } from "react";
 import MainSlider from "../../slider/Slider";
 import Navbar from "../../navbar/Navbar";
+import toast, { Toaster } from 'react-hot-toast';
+import { useNavigate } from "react-router-dom";
+
+
 
 const EscortRegister = () => {
+    const navigate = useNavigate()
+
     const [formData, setFormData] = useState({
         username: "",
         email: "",
@@ -10,32 +16,16 @@ const EscortRegister = () => {
         phone: "",
         website: "",
         name: "",
-        city: "",
         about: "",
         gender: "",
         country: "",
-        dobDay: "",
-        dobMonth: "",
-        dobYear: "",
+        ethnicity: "",
+        look: "",
+        hair: "",
+        bust: "",
+        city: "",
         currency: "",
-        incallRates: {
-            "1h": "",
-            "2h": "",
-            "3h": "",
-            "4h": "",
-            "5h": "",
-            "12h": "",
-            "24h": "",
-        },
-        outcallRates: {
-            "1h": "",
-            "2h": "",
-            "3h": "",
-            "4h": "",
-            "5h": "",
-            "12h": "",
-            "24h": "",
-        },
+        availability: "",
         services: {
             owo: false,
             oLevel: false,
@@ -59,6 +49,7 @@ const EscortRegister = () => {
             domination: false,
             lt: false,
         },
+        extra: ""
     });
 
     const handleChange = (e) => {
@@ -68,22 +59,69 @@ const EscortRegister = () => {
             [name]: value,
         }));
     };
-    const handleRateChange = (e, type, duration) => {
-        const { name, value } = e.target;
-        setFormData((prevState) => ({
-            ...prevState,
-            [type]: {
-                ...prevState[type],
-                [duration]: value,
-            },
-        }));
-    };
+
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        // Handle form submission here
-        console.log("Form data:", formData);
+console.log(formData);
+
+        // Filter out unselected services
+        const selectedServices = Object.fromEntries(
+            Object.entries(formData.services).filter(([service, checked]) => checked)
+        );
+
+        // Create the data to be sent, including only selected services
+        const dataToSend = {
+            username: formData.username,
+            email: formData.email,
+            password: formData.password,
+            phone: formData.phone,
+            website: formData.website,
+            name: formData.name,
+            city: formData.city,
+            about: formData.about,
+            gender: formData.gender,
+            country: formData.country,
+            ethnicity: formData.ethnicity,
+            look: formData.look,
+            hairLength: formData.hair,
+            bustSize: formData.bust,
+            availability: formData.availability,
+            currency: formData.currency,
+            services: selectedServices,
+            extraServices: formData.extra,
+        };
+
+        console.log("Form data:", dataToSend);
+
+        const myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");
+
+        const raw = JSON.stringify(dataToSend);
+
+        const requestOptions = {
+            method: "POST",
+            headers: myHeaders,
+            body: raw,
+            redirect: "follow",
+        };
+
+        fetch("https://hongkongbackend.vercel.app/v1/register", requestOptions)
+            .then((response) => response.text())
+            .then((result) => {
+                let data = JSON.parse(result);
+                if (data.success === false) {
+                    // console.log(data.error);
+                    toast(data.error, {
+                        duration: 6000,
+                    });
+                } else {
+                    navigate("/login");
+                }
+            })
+            .catch((error) => console.error(error));
     };
+
     const link = [
         { id: 1, name: "Abu Al Abyad Russian Escort Service" },
         { id: 2, name: "Russian Call Girls Abu Al Abyad" },
@@ -112,11 +150,13 @@ const EscortRegister = () => {
         }));
     };
 
+
     return (
         <div className="">
             <Navbar />
             <MainSlider />
             <div className="flex w-[100%] bg-halfWhite">
+                <Toaster />
                 {/* First section with 25% width */}
                 <div className="w-[20%] py-2 border border-secondary">
                     <h2 className="px-4 font-normal text-primary text-[18px]">
@@ -251,7 +291,7 @@ const EscortRegister = () => {
                             </div>
 
                             {/* City */}
-                            <div className="mb-4">
+                            {/* <div className="mb-4">
                                 <label
                                     htmlFor="city"
                                     className="block text-sm font-medium text-gray-700"
@@ -266,7 +306,7 @@ const EscortRegister = () => {
                                     onChange={handleChange}
                                     className="mt-1 lg:h-10 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                                 />
-                            </div>
+                            </div> */}
 
                             {/* About */}
                             <div className="mb-4">
@@ -308,9 +348,9 @@ const EscortRegister = () => {
                                     </label>
                                     <input
                                         type="radio"
-                                        id="male"
+                                        id="ladyboy"
                                         name="gender"
-                                        value="Male"
+                                        value="ladyboy"
                                         onChange={handleChange}
                                         className="ml-4 focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded"
                                     />
@@ -318,10 +358,10 @@ const EscortRegister = () => {
                                         htmlFor="male"
                                         className="ml-2 block text-sm text-gray-900"
                                     >
-                                        Ladyboy
+                                        Lady boy
                                     </label>
-                                   
-        
+
+
                                 </div>
                             </div>
 
@@ -341,9 +381,44 @@ const EscortRegister = () => {
                                     className="mt-1 lg:h-10 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                                 >
                                     <option value="">Select Country</option>
-                                    <option value="USA">United States</option>
-                                    <option value="UK">United Kingdom</option>
-                                    {/* Add more country options here */}
+                                    <option value="Hongkong">Hong Kong</option>
+                                </select>
+                            </div>
+
+                            {/* District */}
+                            <div className="mb-4">
+                                <label
+                                    htmlFor="district"
+                                    className="block text-sm font-medium text-gray-700"
+                                >
+                                    District
+                                </label>
+                                <select
+                                    id="city"
+                                    name="city"
+                                    value={formData.city}
+                                    onChange={handleChange}
+                                    className="mt-1 lg:h-10 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+                                >
+                                    <option value="">Select District</option>
+                                    <option value="Central and Western District">Central and Western District</option>
+                                    <option value="Eastern District">Eastern District</option>
+                                    <option value="Southern District">Southern District</option>
+                                    <option value="Wan Chai District">Wan Chai District</option>
+                                    <option value="Sham Shui Po District">Sham Shui Po District</option>
+                                    <option value="Kowloon City District">Kowloon City District</option>
+                                    <option value="Kwun Tong District">Kwun Tong District</option>
+                                    <option value="Wong Tai Sin District">Wong Tai Sin District</option>
+                                    <option value="Yau Tsim Mong District">Yau Tsim Mong District</option>
+                                    <option value="Islands District">Islands District</option>
+                                    <option value="Kwai Tsing District">Kwai Tsing District</option>
+                                    <option value="North District">North District</option>
+                                    <option value="Sai Kung District">Sai Kung District</option>
+                                    <option value="Sha Tin District">Sha Tin District</option>
+                                    <option value="Tai Po District">Tai Po District</option>
+                                    <option value="Tsuen Wan District">Tsuen Wan District</option>
+                                    <option value="Tuen Mun District">Tuen Mun District</option>
+                                    <option value="Yuen Long District">Yuen Long District</option>
                                 </select>
                             </div>
 
@@ -424,7 +499,7 @@ const EscortRegister = () => {
                                             onChange={handleChange}
                                             className="mr-2 lg:h-10 focus:ring-blue-500 focus:border-blue-500 border-gray-300 rounded-md"
                                         > */}
-                                            {/* <option value="1990">1990</option>
+                                        {/* <option value="1990">1990</option>
                                             <option value="1991">1991</option>
                                             <option value="1992">1992</option>
                                             */}
@@ -442,21 +517,26 @@ const EscortRegister = () => {
                                     Ethnicity
                                 </label>
                                 <select
-                                    id="country"
-                                    name="country"
-                                    value={formData.country}
+                                    id="ethnicity"
+                                    name="ethnicity"
+                                    value={formData.ethnicity}
                                     onChange={handleChange}
                                     className="mt-1 lg:h-10 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                                 >
                                     <option value="">Select</option>
-                                    <option value="USA">Black</option>
-                                    <option value="UK">White</option>
+                                    <option value="Latin">Latin</option>
+                                    <option value="Caucasian">Caucasian</option>
+                                    <option value="Black">Black</option>
+                                    <option value="White">White</option>
+                                    <option value="MiddleEast">MiddleEast</option>
+                                    <option value="Asian">Asian</option>
+
                                     {/* Add more country options here */}
                                 </select>
                             </div>
 
 
-                            {/* Ethnicity */}
+                            {/* Look */}
                             <div className="mb-4">
                                 <label
                                     htmlFor="country"
@@ -465,21 +545,23 @@ const EscortRegister = () => {
                                     Look
                                 </label>
                                 <select
-                                    id="country"
-                                    name="country"
-                                    value={formData.country}
+                                    id="look"
+                                    name="look"
+                                    value={formData.look}
                                     onChange={handleChange}
                                     className="mt-1 lg:h-10 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                                 >
                                     <option value="">Select</option>
-                                    <option value="USA">Black</option>
-                                    <option value="UK">White</option>
+                                    <option value="NothingSpecial">Nothing Special</option>
+                                    <option value="Average">Average</option>
+                                    <option value="Sexy">Sexy</option>
+                                    <option value="UltraSexy">Ultra Sexy</option>
                                     {/* Add more country options here */}
                                 </select>
                             </div>
 
 
-                            {/* Ethnicity */}
+                            {/* Hair */}
                             <div className="mb-4">
                                 <label
                                     htmlFor="country"
@@ -488,21 +570,22 @@ const EscortRegister = () => {
                                     Hair Lenght
                                 </label>
                                 <select
-                                    id="country"
-                                    name="country"
-                                    value={formData.country}
+                                    id="hair"
+                                    name="hair"
+                                    value={formData.hair}
                                     onChange={handleChange}
                                     className="mt-1 lg:h-10 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                                 >
                                     <option value="">Select</option>
-                                    <option value="USA">Black</option>
-                                    <option value="UK">White</option>
+                                    <option value="bold">Bold</option>
+                                    <option value="long">Long</option>
+                                    <option value="short">Short</option>
                                     {/* Add more country options here */}
                                 </select>
                             </div>
 
 
-                            {/* Ethnicity */}
+                            {/* Bust */}
                             <div className="mb-4">
                                 <label
                                     htmlFor="country"
@@ -511,20 +594,22 @@ const EscortRegister = () => {
                                     Bust Size
                                 </label>
                                 <select
-                                    id="country"
-                                    name="country"
-                                    value={formData.country}
+                                    id="bust"
+                                    name="bust"
+                                    value={formData.bust}
                                     onChange={handleChange}
                                     className="mt-1 lg:h-10 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                                 >
                                     <option value="">Select</option>
-                                    <option value="USA">Black</option>
-                                    <option value="UK">White</option>
+                                    <option value="VerySmall">Very Small</option>
+                                    <option value="Small">Small</option>
+                                    <option value="Medium">Medium</option>
+                                    <option value="Large">Large</option>
                                     {/* Add more country options here */}
                                 </select>
                             </div>
 
-                            {/* Gender */}
+                            {/* Availability */}
                             <div className="mb-4">
                                 <span className="block text-sm font-medium text-gray-700">
                                     Availability
@@ -533,8 +618,8 @@ const EscortRegister = () => {
                                     <input
                                         type="radio"
                                         id="female"
-                                        name="gender"
-                                        value="Female"
+                                        name="availability"
+                                        value="In Call"
                                         onChange={handleChange}
                                         className="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded"
                                     />
@@ -547,8 +632,8 @@ const EscortRegister = () => {
                                     <input
                                         type="radio"
                                         id="male"
-                                        name="gender"
-                                        value="Male"
+                                        name="availability"
+                                        value="Out Call"
                                         onChange={handleChange}
                                         className="ml-4 focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded"
                                     />
@@ -561,7 +646,7 @@ const EscortRegister = () => {
                                 </div>
                             </div>
 
-                            {/* Rate  */}
+                            {/* Select Currency  */}
 
                             <div className="mb-8">
                                 <label
@@ -578,67 +663,28 @@ const EscortRegister = () => {
                                     className="mt-1 lg:h-10 focus:ring-blue-500 focus:border-blue-500 border-gray-300 rounded-md"
                                 >
                                     <option value="">Select Currency</option>
-                                    {/* Add options for currencies here */}
+                                    <option value="USD">US Dollar (USD)</option>
+                                    <option value="EUR">Euro (EUR)</option>
+                                    <option value="GBP">British Pound (GBP)</option>
+                                    <option value="JPY">Japanese Yen (JPY)</option>
+                                    <option value="AUD">Australian Dollar (AUD)</option>
+                                    <option value="CAD">Canadian Dollar (CAD)</option>
+                                    <option value="CHF">Swiss Franc (CHF)</option>
+                                    <option value="CNY">Chinese Yuan (CNY)</option>
+                                    <option value="SEK">Swedish Krona (SEK)</option>
+                                    <option value="NZD">New Zealand Dollar (NZD)</option>
+                                    <option value="KRW">South Korean Won (KRW)</option>
+                                    <option value="SGD">Singapore Dollar (SGD)</option>
+                                    <option value="NOK">Norwegian Krone (NOK)</option>
+                                    <option value="MXN">Mexican Peso (MXN)</option>
+                                    <option value="INR">Indian Rupee (INR)</option>
+                                    <option value="RUB">Russian Ruble (RUB)</option>
+                                    <option value="BRL">Brazilian Real (BRL)</option>
+                                    <option value="TRY">Turkish Lira (TRY)</option>
+                                    <option value="ZAR">South African Rand (ZAR)</option>
+                                    <option value="HKD">Hong Kong Dollar (HKD)</option>
                                 </select>
                             </div>
-                            {/* <div className="mb-8">
-                                <h2 className="text-lg font-medium text-gray-700 mb-2">
-                                    Incall Rates
-                                </h2>
-                                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                                    {Object.entries(formData.incallRates).map(
-                                        ([duration, rate]) => (
-                                            <div key={duration} className="flex flex-col">
-                                                <label
-                                                    htmlFor={`incall-${duration}`}
-                                                    className="block text-sm font-medium text-gray-700"
-                                                >
-                                                    {duration}
-                                                </label>
-                                                <input
-                                                    type="number"
-                                                    id={`incall-${duration}`}
-                                                    name={`incall-${duration}`}
-                                                    value={rate}
-                                                    onChange={(e) =>
-                                                        handleRateChange(e, "incallRates", duration)
-                                                    }
-                                                    className="mt-1 lg:h-10 focus:ring-blue-500 focus:border-blue-500 border-gray-300 rounded-md"
-                                                />
-                                            </div>
-                                        )
-                                    )}
-                                </div>
-                            </div> */}
-                            {/* <div className="mb-8">
-                                <h2 className="text-lg font-medium text-gray-700 mb-2">
-                                    Outcall Rates
-                                </h2>
-                                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                                    {Object.entries(formData.outcallRates).map(
-                                        ([duration, rate]) => (
-                                            <div key={duration} className="flex flex-col">
-                                                <label
-                                                    htmlFor={`outcall-${duration}`}
-                                                    className="block text-sm font-medium text-gray-700"
-                                                >
-                                                    {duration}
-                                                </label>
-                                                <input
-                                                    type="number"
-                                                    id={`outcall-${duration}`}
-                                                    name={`outcall-${duration}`}
-                                                    value={rate}
-                                                    onChange={(e) =>
-                                                        handleRateChange(e, "outcallRates", duration)
-                                                    }
-                                                    className="mt-1 lg:h-10 focus:ring-blue-500 focus:border-blue-500 border-gray-300 rounded-md"
-                                                />
-                                            </div>
-                                        )
-                                    )}
-                                </div>
-                            </div> */}
 
                             {/* Services  */}
                             <div className="mb-8">
@@ -669,9 +715,9 @@ const EscortRegister = () => {
                                 </label>
                                 <input
                                     type="text"
-                                    id="website"
-                                    name="website"
-                                    value={formData.website}
+                                    id="extra"
+                                    name="extra"
+                                    value={formData.extra}
                                     onChange={handleChange}
                                     className="mt-1 lg:h-10 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                                 />

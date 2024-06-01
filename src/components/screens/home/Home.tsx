@@ -4,6 +4,7 @@ import MainBody from '../body/Body'
 
 
 export const Home = () => {
+
   return (
     <>
     <Navbar />
